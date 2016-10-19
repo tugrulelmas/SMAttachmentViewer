@@ -111,7 +111,7 @@ function loadImage(parseResult, thread){
       }
       var str = window.btoa(binary);
       document.getElementById(imgId).src = 'data:' + parseResult.type + ';base64,' + str;
-    } else if(thread < 3){
+    } else if(thread < 5){
       loadImage(parseResult, thread+1);
     }
   };

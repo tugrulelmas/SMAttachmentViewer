@@ -1,7 +1,7 @@
 {
   "name": "SMAttachmentViewer",
   "title": "SM resimlerinin mouse hover ile görüntülenmesini sağlar.",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "homepage": "https://chrome.google.com/webstore/detail/sm-resim-y%C3%BCkleyici/gdbkmipejldaapefcbjkjcnlidaagodm",
   "author": "abioka",
   "license": {
