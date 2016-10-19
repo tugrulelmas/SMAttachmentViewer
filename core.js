@@ -31,7 +31,7 @@ document.addEventListener('mousemove', function (e) {
 
       var img = document.getElementById(imgId);
       var parseResult = parseUrl(srcElement.href);
-      loadImage(parseResult, 1);
+      loadImage(parseResult);
 
       img.addEventListener('load', function() {
           var bodyHeight = window.scrollY + document.documentElement.clientHeight;
@@ -93,10 +93,10 @@ document.addEventListener('mousemove', function (e) {
   }
 }, false);
 
-function loadImage(parseResult, thread){
+function loadImage(parseResult){
   var url = "/sm/detail.do?ctx=attachment&action=open&" + parseResult.url;
   var xhr = new XMLHttpRequest();
-  xhr.open('GET', url + thread, true);
+  xhr.open('GET', url, true);
   xhr.responseType = 'arraybuffer';
   xhr.withCredentials= true;
 
@@ -111,8 +111,6 @@ function loadImage(parseResult, thread){
       }
       var str = window.btoa(binary);
       document.getElementById(imgId).src = 'data:' + parseResult.type + ';base64,' + str;
-    } else if(thread < 5){
-      loadImage(parseResult, thread+1);
     }
   };
   xhr.send();
@@ -141,5 +139,6 @@ function getId(){
 
 function parseUrl(href){
   var params = href.replace('javascript:openAttachment(', '').replace(')', '').replace(/'/g, '').split(',');
-  return { "url":  "name=" + params[0] + "&id=" + params[1] + "&type=" + params[2] + "&len=" + params[3] + "&thread=", "type": params[2] };
+  var thread = document.forms["topaz"].thread.value;
+  return { "url":  "name=" + params[0] + "&id=" + params[1] + "&type=" + params[2] + "&len=" + params[3] + "&thread=" + thread, "type": params[2] };
 }
