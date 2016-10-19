@@ -7,9 +7,6 @@ var loadingUrl = chrome.extension.getURL('loading.gif');
 popup += "<div id='loading_" + popupId + "' class='abioka-messagepop abioka-messagepop-loading'><img src='" + loadingUrl + "'></img></div>"
 appendToBody(popup);
 
-var xmlHttp = null;
-var baseUrl = "/sm/detail.do?ctx=attachment&action=open&";
-
 document.addEventListener('mousemove', function (e) {
   var srcElement = e.srcElement;
   if(srcElement.id === imgId)
@@ -34,27 +31,7 @@ document.addEventListener('mousemove', function (e) {
 
       var img = document.getElementById(imgId);
       var parseResult = parseUrl(srcElement.href);
-      var url = baseUrl + parseResult.url;
-
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', url, true);
-      xhr.responseType = 'arraybuffer';
-      xhr.withCredentials= true;
-
-      xhr.onload = function(e) {
-        if (this.status == 200) {
-          var buffer = this.response;
-          var binary = '';
-          var bytes = new Uint8Array(buffer);
-          var len = bytes.byteLength;
-          for (var i = 0; i < len; i++) {
-              binary += String.fromCharCode(bytes[i]);
-          }
-          var str = window.btoa(binary);
-          document.getElementById(imgId).src = 'data:' + parseResult.type + ';base64,' + str;
-        }
-      };
-      xhr.send();
+      loadImage(parseResult, 1);
 
       img.addEventListener('load', function() {
           var bodyHeight = window.scrollY + document.documentElement.clientHeight;
@@ -116,6 +93,31 @@ document.addEventListener('mousemove', function (e) {
   }
 }, false);
 
+function loadImage(parseResult, thread){
+  var url = "/sm/detail.do?ctx=attachment&action=open&" + parseResult.url;
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', url + thread, true);
+  xhr.responseType = 'arraybuffer';
+  xhr.withCredentials= true;
+
+  xhr.onload = function(e) {
+    if (this.status == 200) {
+      var buffer = this.response;
+      var binary = '';
+      var bytes = new Uint8Array(buffer);
+      var len = bytes.byteLength;
+      for (var i = 0; i < len; i++) {
+          binary += String.fromCharCode(bytes[i]);
+      }
+      var str = window.btoa(binary);
+      document.getElementById(imgId).src = 'data:' + parseResult.type + ';base64,' + str;
+    } else if(thread < 3){
+      loadImage(parseResult, thread+1);
+    }
+  };
+  xhr.send();
+}
+
 function closePopup(){
   css(popupId, 'display','none');
   css('loading_' + popupId, 'display','none');
@@ -139,5 +141,5 @@ function getId(){
 
 function parseUrl(href){
   var params = href.replace('javascript:openAttachment(', '').replace(')', '').replace(/'/g, '').split(',');
-  return { "url":  "name=" + params[0] + "&id=" + params[1] + "&type=" + params[2] + "&len=" + params[3] + "&thread=1", "type": params[2] };
+  return { "url":  "name=" + params[0] + "&id=" + params[1] + "&type=" + params[2] + "&len=" + params[3] + "&thread=", "type": params[2] };
 }
